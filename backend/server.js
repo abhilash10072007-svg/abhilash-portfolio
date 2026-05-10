@@ -7,16 +7,18 @@ const nodemailer = require('nodemailer');
 const app = express();
 
 // Middleware
+const cors = require('cors');
+
+// CORS configuration - Allow all origins for testing
 app.use(cors({
-    origin: [
-        'http://localhost:3000',
-        'https://abhilash-portfolio.vercel.app',
-        'https://abhilash-portfolio-git-main.vercel.app',
-        'https://abhilash-portfolio.vercel.app'
-    ],
-    credentials: true
+    origin: '*',  // Allow all origins (for testing)
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
-app.use(express.json());
+
+// Handle preflight requests
+app.options('*', cors());
 
 // Define Project Schema
 const projectSchema = new mongoose.Schema({
