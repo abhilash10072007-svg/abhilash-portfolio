@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const Contact = require('./models/Contact');  // ADD THIS LINE
 
 const app = express();
 
@@ -79,7 +80,7 @@ app.get('/api/projects', async (req, res) => {
     }
 });
 
-// Contact form endpoint
+// Contact form endpoint - SAVES TO MONGODB
 app.post('/api/contact', async (req, res) => {
     try {
         const { name, email, message } = req.body;
@@ -87,18 +88,34 @@ app.post('/api/contact', async (req, res) => {
         console.log(`\n📧 Contact Form Submission:`);
         console.log(`   Name: ${name}`);
         console.log(`   Email: ${email}`);
-        console.log(`   Message: ${message}\n`);
+        console.log(`   Message: ${message}`);
         
-        res.status(200).json({ 
+        // Save to MongoDB
+        const contact = new Contact({ name, email, message });
+        await contact.save();
+        
+        console.log(`✅ Saved to MongoDB - ID: ${contact._id}\n`);
+        
+        res.json({ 
             success: true, 
             message: 'Message received! I will get back to you soon.' 
         });
     } catch (error) {
-        console.error('Contact error:', error);
-        res.status(200).json({ 
-            success: true, 
-            message: 'Message received!' 
+        console.error('Contact save error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Error saving message. Please try again.' 
         });
+    }
+});
+
+// Get all contact messages (for your reference)
+app.get('/api/contacts', async (req, res) => {
+    try {
+        const contacts = await Contact.find().sort({ createdAt: -1 });
+        res.json({ success: true, count: contacts.length, contacts });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
     }
 });
 
@@ -116,6 +133,7 @@ mongoose.connect(process.env.MONGODB_URI)
             console.log(`   GET  /api/health`);
             console.log(`   GET  /api/projects`);
             console.log(`   POST /api/contact`);
+            console.log(`   GET  /api/contacts`);
         });
     })
     .catch(err => {
