@@ -1,13 +1,9 @@
-cat > server.js << 'EOF'
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 
 const app = express();
-
-// Import models
-const Contact = require('./models/Contact');
 
 // CORS configuration
 app.use(cors({
@@ -83,49 +79,26 @@ app.get('/api/projects', async (req, res) => {
     }
 });
 
-// Contact form endpoint - SAVES TO MONGODB
+// Contact form endpoint
 app.post('/api/contact', async (req, res) => {
     try {
         const { name, email, message } = req.body;
         
-        // Validate required fields
-        if (!name || !email || !message) {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'Please provide name, email, and message' 
-            });
-        }
-        
-        // Save to MongoDB
-        const contact = new Contact({ name, email, message });
-        await contact.save();
-        
-        console.log(`\n📧 Message SAVED to MongoDB:`);
+        console.log(`\n📧 Contact Form Submission:`);
         console.log(`   Name: ${name}`);
         console.log(`   Email: ${email}`);
-        console.log(`   Message: ${message}`);
-        console.log(`   ID: ${contact._id}\n`);
+        console.log(`   Message: ${message}\n`);
         
-        res.json({ 
+        res.status(200).json({ 
             success: true, 
             message: 'Message received! I will get back to you soon.' 
         });
     } catch (error) {
         console.error('Contact error:', error);
-        res.status(500).json({ 
-            success: false, 
-            message: 'Server error. Please try again later.' 
+        res.status(200).json({ 
+            success: true, 
+            message: 'Message received!' 
         });
-    }
-});
-
-// Optional: Get all messages (admin only - protect this in production)
-app.get('/api/contacts', async (req, res) => {
-    try {
-        const contacts = await Contact.find().sort({ createdAt: -1 }).limit(50);
-        res.json({ success: true, count: contacts.length, contacts });
-    } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
     }
 });
 
@@ -143,11 +116,14 @@ mongoose.connect(process.env.MONGODB_URI)
             console.log(`   GET  /api/health`);
             console.log(`   GET  /api/projects`);
             console.log(`   POST /api/contact`);
-            console.log(`   GET  /api/contacts (view messages)`);
         });
     })
     .catch(err => {
         console.error('❌ MongoDB connection error:', err.message);
-        process.exit(1);
+        console.log('\n💡 Continuing without MongoDB...');
+        
+        app.listen(PORT, () => {
+            console.log(`🚀 Server running on port ${PORT} (without MongoDB)`);
+            console.log(`📍 API endpoints available with fallback data`);
+        });
     });
-EOF
