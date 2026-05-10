@@ -7,9 +7,11 @@ const nodemailer = require('nodemailer');
 const app = express();
 
 // CORS configuration - Allow Vercel frontend
+// CORS configuration - Add your exact Vercel URL
 app.use(cors({
     origin: [
         'http://localhost:3000',
+        'https://abhilash-portfolio-xi.vercel.app',  // Your exact URL
         'https://abhilash-portfolio.vercel.app',
         'https://abhilash-portfolio-git-main.vercel.app'
     ],
