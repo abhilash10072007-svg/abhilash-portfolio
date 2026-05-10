@@ -117,4 +117,4 @@ mongoose.connect(process.env.MONGODB_URI)
             console.log(`🚀 Server running on port ${PORT} (without MongoDB)`);
             console.log(`📍 API endpoints available with fallback data`);
         });
-    });
+    });// Redeploy trigger
