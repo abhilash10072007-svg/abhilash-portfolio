@@ -6,12 +6,13 @@ const nodemailer = require('nodemailer');
 
 const app = express();
 
-// Middleware
-const cors = require('cors');
-
-// CORS configuration - Allow all origins for testing
+// CORS configuration - Allow Vercel frontend
 app.use(cors({
-    origin: '*',  // Allow all origins (for testing)
+    origin: [
+        'http://localhost:3000',
+        'https://abhilash-portfolio.vercel.app',
+        'https://abhilash-portfolio-git-main.vercel.app'
+    ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
@@ -89,7 +90,6 @@ app.post('/api/contact', async (req, res) => {
     console.log(`   Email: ${email}`);
     console.log(`   Message: ${message}\n`);
     
-    // For now, just log it (you can enable email later)
     res.json({ success: true, message: 'Message received! I will get back to you soon.' });
 });
 
@@ -102,7 +102,7 @@ mongoose.connect(process.env.MONGODB_URI)
         console.log(`📊 Database: portfolio`);
         
         app.listen(PORT, () => {
-            console.log(`🚀 Server running on http://localhost:${PORT}`);
+            console.log(`🚀 Server running on port ${PORT}`);
             console.log(`📍 API endpoints:`);
             console.log(`   GET  /api/health`);
             console.log(`   GET  /api/projects`);
@@ -113,9 +113,8 @@ mongoose.connect(process.env.MONGODB_URI)
         console.error('❌ MongoDB connection error:', err.message);
         console.log('\n💡 Continuing without MongoDB...');
         
-        // Start server even without MongoDB
         app.listen(PORT, () => {
-            console.log(`🚀 Server running on http://localhost:${PORT} (without MongoDB)`);
+            console.log(`🚀 Server running on port ${PORT} (without MongoDB)`);
             console.log(`📍 API endpoints available with fallback data`);
         });
     });
